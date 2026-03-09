@@ -1,0 +1,38 @@
+@use 'variables' as *;
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: $color-text;
+  background-color: $color-background;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: $spacing-md;
+  font-weight: 700;
+  color: $color-primary;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.75rem; }
+h4 { font-size: 1.5rem; }
+h5 { font-size: 1.25rem; }
+h6 { font-size: 1rem; }
+
+p {
+  margin-top: 0;
+  margin-bottom: $spacing-md;
+}
+
+a {
+  color: $color-secondary;
+  text-decoration: none;
+  transition: $transition-base;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}

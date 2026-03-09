@@ -1,0 +1,45 @@
+@use 'variables' as *;
+
+.form-group {
+  margin-bottom: $spacing-md;
+}
+
+.label {
+  display: block;
+  margin-bottom: $spacing-xs;
+  font-weight: 600;
+  color: $color-primary;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: $color-text;
+  background-color: $color-white;
+  border: 1px solid #d1d5db;
+  border-radius: $border-radius-md;
+  transition: $transition-base;
+
+  &:focus {
+    outline: none;
+    border-color: $color-secondary;
+    box-shadow: 0 0 0 3px rgba($color-secondary, 0.1);
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+
+  &:disabled {
+    background-color: #f3f4f6;
+    cursor: not-allowed;
+  }
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: $spacing-xs;
+}

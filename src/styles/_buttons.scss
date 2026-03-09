@@ -1,0 +1,50 @@
+@use 'variables' as *;
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-sm $spacing-lg;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: $border-radius-md;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: $transition-base;
+  text-decoration: none;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--primary {
+    background-color: $color-primary;
+    color: $color-white;
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+      box-shadow: $shadow-md;
+    }
+  }
+
+  &--secondary {
+    background-color: $color-secondary;
+    color: $color-white;
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+      box-shadow: $shadow-md;
+    }
+  }
+
+  &--outline {
+    background-color: transparent;
+    border-color: $color-primary;
+    color: $color-primary;
+
+    &:hover:not(:disabled) {
+      background-color: rgba($color-primary, 0.05);
+    }
+  }
+}

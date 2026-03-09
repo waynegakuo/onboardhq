@@ -1,1 +1,12 @@
-/* You can add global styles to this file, and also import other style files */
+@use 'styles/variables' as *;
+@use 'styles/typography';
+@use 'styles/buttons';
+@use 'styles/forms';
+@use 'styles/animations';
+@use 'styles/utilities';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
