@@ -16,7 +16,11 @@
         [class.message-in-left]="message.role === 'ai'"
       >
         <div class="message-bubble">
-          <p class="message-content">{{ message.content }}</p>
+          @if (message.formattedText) {
+            <div [innerHTML]="message.formattedText"></div>
+          } @else {
+            <p class="message-content">{{ message.content }}</p>
+          }
           <span class="timestamp">{{ message.timestamp | date: 'shortTime' }}</span>
         </div>
       </div>

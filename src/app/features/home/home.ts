@@ -7,10 +7,12 @@ import {
   effect,
   inject,
 } from '@angular/core';
-import {CommonModule, NgOptimizedImage} from '@angular/common';
+import {CommonModule} from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Message } from '../../models/message';
-import { ChatService, ChatMessage } from '../../core/services/chat.service';
+import { ChatService, ChatMessage } from '../../services/chat.service';
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
+import {MarkdownUtils} from '../../utils/markdown-utils';
 
 @Component({
   selector: 'app-home',
@@ -24,6 +26,8 @@ import { ChatService, ChatMessage } from '../../core/services/chat.service';
 })
 export class HomeComponent {
   private chatService = inject(ChatService);
+  private sanitizer = inject(DomSanitizer);
+
   messages = signal<Message[]>([
     {
       id: '1',
@@ -86,6 +90,7 @@ export class HomeComponent {
         id: Date.now().toString(),
         role: 'ai',
         content: response,
+        formattedText: this.formatMarkdown(response),
         timestamp: new Date(),
       };
 
@@ -115,5 +120,10 @@ export class HomeComponent {
       event.preventDefault();
       this.sendMessage();
     }
+  }
+
+  private formatMarkdown(text: string): SafeHtml {
+    const html = MarkdownUtils.formatMarkdown(text);
+    return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 }

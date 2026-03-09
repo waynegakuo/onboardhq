@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal, viewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { UploadService } from '../../core/services/upload.service';
+import { UploadService } from '../../services/upload.service';
 
 @Component({
   selector: 'app-upload',
