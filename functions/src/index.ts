@@ -159,10 +159,10 @@ export const _chatWithFileSearchLogic = ai.defineFlow(
     outputSchema: z.string(),
   },
   async({question, history}) => {
-    const fileSearchStoreName = 'obhqknowledgebase';
+    const fileSearchStoreName = 'obhqknowledge';
 
     // 1. Get the actual Google File Search store name from Firestore
-    const storeSnap = await db.collection('akhqFileSearchStores').doc(fileSearchStoreName).get();
+    const storeSnap = await db.collection('obhqFileSearchStores').doc(fileSearchStoreName).get();
     const googleFileSearchStoreName = storeSnap.data()?.googleFileSearchStoreName;
 
     if (!googleFileSearchStoreName) {

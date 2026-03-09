@@ -5,10 +5,12 @@ import {
   signal,
   viewChild,
   effect,
+  inject,
 } from '@angular/core';
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Message } from '../../models/message';
+import { ChatService, ChatMessage } from '../../core/services/chat.service';
 
 @Component({
   selector: 'app-home',
@@ -21,6 +23,7 @@ import { Message } from '../../models/message';
   },
 })
 export class HomeComponent {
+  private chatService = inject(ChatService);
   messages = signal<Message[]>([
     {
       id: '1',
@@ -63,18 +66,42 @@ export class HomeComponent {
     this.userInput.set('');
     this.isTyping.set(true);
 
-    // Simulate AI response
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      // Map current messages to history format expected by the service
+      // We skip the last message (the one we just added) for the history array
+      // but the backend takes 'question' separately.
+      const history: ChatMessage[] = this.messages()
+        .slice(0, -1)
+        .map(m => ({
+          role: m.role === 'ai' ? 'model' : 'user',
+          content: m.content
+        }));
 
-    const aiMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      role: 'ai',
-      content: `I received your message: "${text}". This is a dummy response.`,
-      timestamp: new Date(),
-    };
+      const response = await this.chatService.sendMessage({
+        question: text,
+        history
+      });
 
-    this.messages.update((msgs) => [...msgs, aiMessage]);
-    this.isTyping.set(false);
+      const aiMessage: Message = {
+        id: Date.now().toString(),
+        role: 'ai',
+        content: response,
+        timestamp: new Date(),
+      };
+
+      this.messages.update((msgs) => [...msgs, aiMessage]);
+    } catch (error) {
+      console.error('Failed to get AI response:', error);
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        role: 'ai',
+        content: 'Sorry, I encountered an error. Please try again later.',
+        timestamp: new Date(),
+      };
+      this.messages.update((msgs) => [...msgs, errorMessage]);
+    } finally {
+      this.isTyping.set(false);
+    }
   }
 
   onKeyDown(event: KeyboardEvent) {
