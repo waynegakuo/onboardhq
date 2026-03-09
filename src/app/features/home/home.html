@@ -1,0 +1,55 @@
+<div class="chat-container">
+  <header class="chat-header">
+    <div class="header-content">
+      <h1 class="onboard-hq-title">Onboard HQ</h1>
+      <p class="description">Your intelligent assistant for seamless onboarding and query resolution.</p>
+    </div>
+  </header>
+
+  <main class="messages-area" #scrollContainer>
+    @for (message of messages(); track message.id) {
+      <div
+        class="message-wrapper"
+        [class.user]="message.role === 'user'"
+        [class.ai]="message.role === 'ai'"
+        [class.message-in-right]="message.role === 'user'"
+        [class.message-in-left]="message.role === 'ai'"
+      >
+        <div class="message-bubble">
+          <p>{{ message.content }}</p>
+          <span class="timestamp">{{ message.timestamp | date: 'shortTime' }}</span>
+        </div>
+      </div>
+    }
+
+    @if (isTyping()) {
+      <div class="message-wrapper ai message-in-left">
+        <div class="message-bubble typing">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+    }
+  </main>
+
+  <footer class="input-area">
+    <div class="input-container">
+      <textarea
+        placeholder="Type your query here..."
+        [(ngModel)]="userInput"
+        (keydown)="onKeyDown($event)"
+        rows="1"
+        aria-label="Chat input"
+      ></textarea>
+      <button
+        class="btn-primary"
+        [disabled]="!userInput().trim() || isTyping()"
+        (click)="sendMessage()"
+        aria-label="Send message"
+      >
+        <span class="icon">Send</span>
+      </button>
+    </div>
+  </footer>
+</div>

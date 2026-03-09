@@ -1,7 +1,7 @@
 @use 'variables' as *;
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: $font-body;
   color: $color-text;
   background-color: $color-background;
   line-height: 1.5;
@@ -11,6 +11,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
   margin-bottom: $spacing-md;
+  font-family: $font-heading;
   font-weight: 700;
   color: $color-primary;
 }
