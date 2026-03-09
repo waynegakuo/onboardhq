@@ -1,0 +1,94 @@
+<div class="upload-container">
+  <header class="upload-header">
+    <div class="header-content">
+      <h1 class="onboard-hq-title">Upload Knowledge</h1>
+      <p class="description">Add new documents to the knowledge base to improve assistant responses.</p>
+    </div>
+  </header>
+
+  <main class="upload-area">
+    <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()" class="upload-form">
+      <div class="form-group mb-xs">
+        <label for="displayName" class="label">Display Name</label>
+        <input
+          id="displayName"
+          type="text"
+          formControlName="displayName"
+          class="input"
+          placeholder="Enter a descriptive name for the file"
+          [attr.aria-invalid]="uploadForm.get('displayName')?.invalid && uploadForm.get('displayName')?.touched"
+        />
+        @if (uploadForm.get('displayName')?.invalid && uploadForm.get('displayName')?.touched) {
+          <p class="error-message">
+            Display name is required (min 3 characters).
+          </p>
+        }
+      </div>
+
+      <div class="form-group mb-xs">
+        <label class="label">File Upload</label>
+        <div
+          class="drop-zone"
+          [class.dragging]="isDragging()"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+          (click)="triggerFileInput()"
+          role="button"
+          tabindex="0"
+          (keydown.enter)="triggerFileInput()"
+          (keydown.space)="triggerFileInput()"
+        >
+          <input
+            type="file"
+            #fileInput
+            (change)="onFileSelected($event)"
+            class="hidden-file-input"
+            accept=".pdf,.txt,.docx,.md"
+            aria-label="File upload input"
+          />
+
+          <div class="drop-zone-content">
+            <div class="upload-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            @if (selectedFileName()) {
+              <p class="file-name">{{ selectedFileName() }}</p>
+              <p class="change-file">Click or drag to change file</p>
+            } @else {
+              <p class="prompt">Drag & drop your file here or <span>browse</span></p>
+              <p class="hint">Supports PDF, TXT, DOCX, and MD</p>
+            }
+          </div>
+        </div>
+        @if (uploadForm.get('file')?.invalid && uploadForm.get('file')?.touched) {
+          <p class="error-message">Please select a file to upload.</p>
+        }
+      </div>
+
+      <div class="form-actions mt-sm">
+        <button
+          type="submit"
+          class="btn btn--primary w-100"
+          [disabled]="uploadForm.invalid || isUploading()"
+        >
+          {{ isUploading() ? 'Uploading...' : 'Upload Knowledge' }}
+        </button>
+      </div>
+
+      @if (uploadSuccess()) {
+        <div class="status-message success" role="alert">
+          <div class="status-icon">✓</div>
+          <div class="status-text">File uploaded successfully!</div>
+        </div>
+      }
+
+      @if (uploadError()) {
+        <div class="status-message error" role="alert">
+          <div class="status-icon">⚠</div>
+          <div class="status-text">{{ uploadError() }}</div>
+        </div>
+      }
+    </form>
+  </main>
+</div>

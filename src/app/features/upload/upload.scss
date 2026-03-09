@@ -1,0 +1,157 @@
+@use 'sass:color';
+@use '../../../styles/variables' as *;
+
+:host {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  overflow: hidden;
+  padding: $spacing-sm;
+}
+
+.upload-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 500px;
+  margin: auto;
+  background-color: white;
+  box-shadow: $shadow-lg;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  max-height: 100%;
+}
+
+.upload-header {
+  padding: $spacing-md $spacing-lg $spacing-xs;
+  background: white;
+  border-bottom: 1px solid #f3f4f6;
+  text-align: center;
+
+  .onboard-hq-title {
+    font-family: $font-heading;
+    font-size: 1.75rem;
+    margin-bottom: 0;
+    color: $color-primary;
+  }
+
+  .description {
+    font-size: 0.85rem;
+    color: #6b7280;
+    max-width: 400px;
+    margin: 0 auto;
+    font-style: italic;
+  }
+}
+
+.upload-area {
+  padding: $spacing-md $spacing-lg;
+  overflow-y: auto;
+}
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.drop-zone {
+  border: 2px dashed #d1d5db;
+  border-radius: $border-radius-md;
+  padding: $spacing-md;
+  text-align: center;
+  cursor: pointer;
+  transition: $transition-base;
+  background-color: #f9fafb;
+
+  &:hover, &.dragging {
+    border-color: $color-secondary;
+    background-color: rgba($color-secondary, 0.05);
+  }
+
+  &.dragging {
+    transform: scale(1.02);
+  }
+
+  .hidden-file-input {
+    display: none;
+  }
+
+  .drop-zone-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-xs;
+
+    .upload-icon {
+      color: #9ca3af;
+      margin-bottom: 0;
+
+      svg {
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    .prompt {
+      font-size: 1rem;
+      color: $color-text;
+      margin-bottom: 0;
+
+      span {
+        color: $color-secondary;
+        font-weight: 600;
+        text-decoration: underline;
+      }
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-bottom: 0;
+    }
+
+    .file-name {
+      font-weight: 600;
+      color: $color-secondary;
+      word-break: break-all;
+      font-size: 0.9rem;
+    }
+
+    .change-file {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+  }
+}
+
+.form-actions {
+  margin-top: $spacing-xs;
+}
+
+.status-message {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $border-radius-md;
+  font-size: 0.9rem;
+  margin-top: $spacing-sm;
+
+  .status-icon {
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+
+  &.success {
+    background-color: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #d1fae5;
+  }
+
+  &.error {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fee2e2;
+  }
+}
