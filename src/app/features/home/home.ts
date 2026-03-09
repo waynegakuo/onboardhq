@@ -90,12 +90,18 @@ export class HomeComponent {
       };
 
       this.messages.update((msgs) => [...msgs, aiMessage]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to get AI response:', error);
+
+      let errorMessageText = 'Sorry, I encountered an error. Please try again later.';
+      if (error?.message?.includes('FILE_SEARCH_STORE_NOT_FOUND')) {
+        errorMessageText = 'It seems that the knowledge base is not initialized yet. Please upload a file first to create it.';
+      }
+
       const errorMessage: Message = {
         id: Date.now().toString(),
         role: 'ai',
-        content: 'Sorry, I encountered an error. Please try again later.',
+        content: errorMessageText,
         timestamp: new Date(),
       };
       this.messages.update((msgs) => [...msgs, errorMessage]);

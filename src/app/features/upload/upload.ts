@@ -113,7 +113,13 @@ export class UploadComponent {
       this.selectedFileName.set(null);
     } catch (error: any) {
       console.error('Upload failed', error);
-      this.uploadError.set(error.message || 'An error occurred during upload.');
+      let errorMsg = 'An error occurred during upload.';
+      if (error?.message?.includes('UPLOAD_FAILED')) {
+        errorMsg = 'The file upload failed on the server. Please check the file and try again.';
+      } else if (error?.message) {
+        errorMsg = error.message;
+      }
+      this.uploadError.set(errorMsg);
     } finally {
       this.isUploading.set(false);
     }

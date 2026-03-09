@@ -124,7 +124,7 @@ export const _uploadToFileSearchStoreLogic = ai.defineFlow(
     }
 
     if (operation.error) {
-      throw new Error(`Upload failed: ${JSON.stringify(operation.error)}`);
+      throw new Error(`UPLOAD_FAILED: ${JSON.stringify(operation.error)}`);
     }
 
     // 2. Save file metadata to subcollection
@@ -166,7 +166,7 @@ export const _chatWithFileSearchLogic = ai.defineFlow(
     const googleFileSearchStoreName = storeSnap.data()?.googleFileSearchStoreName;
 
     if (!googleFileSearchStoreName) {
-      throw new Error(`File search store ${fileSearchStoreName} not found or not initialized.`);
+      throw new Error(`FILE_SEARCH_STORE_NOT_FOUND: File search store ${fileSearchStoreName} not found or not initialized.`);
     }
 
     const response = await ai.generate({
