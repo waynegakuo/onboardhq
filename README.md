@@ -37,9 +37,76 @@ graph TD
     end
 ```
 
+### 🧠 Core Genkit Logic
+The heart of Onboard HQ is a Genkit flow that connects the LLM to Google's File Search engine.
+
+```typescript
+// functions/src/index.ts
+export const _chatWithFileSearchLogic = ai.defineFlow(
+  {
+    name: 'chatWithFileSearch',
+    inputSchema: z.object({
+      question: z.string(),
+      history: z.array(conversationMessageSchema).optional(),
+    }),
+    outputSchema: z.string(),
+  },
+  async({question, history}) => {
+    // ... (fetch store name from Firestore)
+    const response = await ai.generate({
+      system: CHAT_WITH_FILE_SEARCH_SYSTEM_PROMPT,
+      messages: [
+        ...toGenkitMessages(history ?? []),
+        {role: 'user', content: [{text: question}]},
+      ],
+      config: {
+        tools: [{ fileSearch: { fileSearchStoreNames: [storeName] } }]
+      }
+    });
+    return response.text;
+  }
+);
+```
+
+### ⚡ Angular Integration
+The frontend communicates with the Genkit flow using Firebase Functions.
+
+```typescript
+// src/app/services/chat.service.ts
+@Injectable({ providedIn: 'root' })
+export class ChatService {
+  private functions = inject(Functions);
+
+  async sendMessage(data: ChatInput): Promise<string> {
+    const chatFn = httpsCallable<ChatInput, string>(
+      this.functions,
+      'chatWithFileSearch'
+    );
+    const result = await chatFn(data);
+    return result.data;
+  }
+}
+```
+
+## 💬 Example Handbook Questions
+Try asking these common onboarding and policy questions:
+
+- "What is our policy on hybrid and remote work?"
+- "How do I set up my corporate VPN and email?"
+- "Tell me about the company's culture and values"
+
 ---
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.2.
+
+## Configuration & Secrets
+
+To set the `GEMINI_API_KEY` in your Firebase project, run:
+
+```bash
+cd functions
+firebase functions:secrets:set GEMINI_API_KEY
+```
 
 ## Development server
 
