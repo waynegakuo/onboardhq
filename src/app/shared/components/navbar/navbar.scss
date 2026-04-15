@@ -18,6 +18,10 @@
     text-decoration: none;
     color: inherit;
 
+    .logo {
+      cursor: pointer;
+    }
+
     .brand-name {
       font-family: $font-heading;
       font-weight: 700;
