@@ -29,7 +29,7 @@ enableFirebaseTelemetry();
 // Configure Genkit
 const ai = genkit({
   plugins: [googleAI({apiKey: process.env.GEMINI_API_KEY})],
-  model: googleAI.model('gemini-3.1-flash-lite-preview'),
+  model: googleAI.model('gemini-2.5-flash'),
 });
 
 const GENKIT_FUNCTION_CONFIG = {
