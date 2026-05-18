@@ -105,12 +105,20 @@ export const _uploadToFileSearchStoreLogic = ai.defineFlow(
     // Create a Blob from the base64 data
     const blob = new Blob([Buffer.from(fileData, 'base64')], { type: mimeType });
 
+    // Normalize MIME type for DOCX if it's the long official one that sometimes causes issues
+    // with the Google GenAI FileSearchStore API. Setting it to undefined allows the API
+    // to infer the type correctly from the content/extension.
+    const uploadMimeType =
+      mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ? undefined
+        : mimeType;
+
     let operation = await genAI.fileSearchStores.uploadToFileSearchStore({
       file: blob,
       fileSearchStoreName: googleFileSearchStoreName,
       config: {
         displayName: displayName || 'uploaded-file',
-        mimeType: mimeType,
+        mimeType: uploadMimeType,
       }
     });
 
