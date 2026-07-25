@@ -98,15 +98,12 @@ export class HomeComponent {
     } catch (error: any) {
       console.error('Failed to get AI response:', error);
 
-      let errorMessageText = 'Sorry, I encountered an error. Please try again later.';
-      if (error?.message?.includes('FILE_SEARCH_STORE_NOT_FOUND')) {
-        errorMessageText = 'It seems that the knowledge base is not initialized yet. Please upload a file first to create it.';
-      }
-
+      const errorMessageText = this.describeError(error);
       const errorMessage: Message = {
         id: Date.now().toString(),
         role: 'ai',
         content: errorMessageText,
+        formattedText: this.formatMarkdown(errorMessageText),
         timestamp: new Date(),
       };
       this.messages.update((msgs) => [...msgs, errorMessage]);
@@ -119,6 +116,33 @@ export class HomeComponent {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage();
+    }
+  }
+
+  /**
+   * Turns a failed request into something a new hire can act on.
+   *
+   * Anyone using the chat may see these, so they stay in plain language — no
+   * service names, error codes, or internal details. Diagnostics belong in the
+   * console log above, not in the chat bubble.
+   */
+  private describeError(error: any): string {
+    const code: string = error?.code ?? '';
+
+    switch (code) {
+      case 'functions/unauthenticated':
+      case 'functions/permission-denied':
+        return 'It looks like you\'ve been signed out.\n\n**What you can do:** refresh the page and sign in again, then ask your question one more time.';
+      case 'functions/unavailable':
+        return 'I couldn\'t connect just now.\n\n**What you can do:** check that you\'re still online, then try again in a moment.';
+      case 'functions/deadline-exceeded':
+        return 'That one took longer than I had to answer it.\n\n**What you can do:** try again — asking about one thing at a time usually gets a quicker answer.';
+      case 'functions/resource-exhausted':
+        return 'I\'m handling a lot of questions at the moment and can\'t take another one right away.\n\n**What you can do:** give it a few minutes and try again.';
+      case 'functions/not-found':
+        return 'I\'m not available right now — something on our side needs attention before I can answer.\n\n**What you can do:** let your HR or IT team know that the Onboard HQ assistant isn\'t responding.';
+      default:
+        return 'Something went wrong on my end — nothing to do with the way you asked.\n\n**What you can do:** try again in a moment. If I keep failing, let your HR or IT team know so someone can take a look.';
     }
   }
 
