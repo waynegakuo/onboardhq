@@ -1,11 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject, signal, viewChild, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { ConversationService } from '../../services/conversation.service';
 import { UploadService } from '../../services/upload.service';
 
 @Component({
   selector: 'app-upload',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, DatePipe, ReactiveFormsModule, RouterLink],
   templateUrl: './upload.html',
   styleUrl: './upload.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -14,10 +16,10 @@ import { UploadService } from '../../services/upload.service';
   },
 })
 export class UploadComponent {
-  private uploadService = inject(UploadService);
-  private fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
+  private readonly uploadService = inject(UploadService);
+  readonly conversationService = inject(ConversationService);
 
-  uploadForm = new FormGroup({
+  readonly uploadForm = new FormGroup({
     displayName: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required, Validators.minLength(3)],
@@ -27,32 +29,38 @@ export class UploadComponent {
     }),
   });
 
-  isUploading = signal(false);
-  uploadError = signal<string | null>(null);
-  uploadSuccess = signal(false);
-  selectedFileName = signal<string | null>(null);
-  isDragging = signal(false);
+  readonly isUploading = signal(false);
+  readonly uploadError = signal<string | null>(null);
+  readonly uploadSuccess = signal(false);
+  readonly selectedFileName = signal<string | null>(null);
+  readonly selectedFileSize = signal<string | null>(null);
+  readonly isDragging = signal(false);
 
-  onFileSelected(event: Event) {
+  get isDisplayNameInvalid(): boolean {
+    const ctrl = this.uploadForm.controls.displayName;
+    return ctrl.invalid && ctrl.touched;
+  }
+
+  onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.handleFile(input.files[0]);
     }
   }
 
-  onDragOver(event: DragEvent) {
+  onDragOver(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
     this.isDragging.set(true);
   }
 
-  onDragLeave(event: DragEvent) {
+  onDragLeave(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
     this.isDragging.set(false);
   }
 
-  onDrop(event: DragEvent) {
+  onDrop(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
     this.isDragging.set(false);
@@ -62,36 +70,22 @@ export class UploadComponent {
     }
   }
 
-  triggerFileInput() {
-    this.fileInput()?.nativeElement.click();
+  clearSelectedFile(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.uploadForm.patchValue({ file: null });
+    this.selectedFileName.set(null);
+    this.selectedFileSize.set(null);
   }
 
-  private handleFile(file: File) {
-    // Basic validation for mime types as requested in the accept attribute
-    const allowedTypes = [
-      'application/pdf',
-      'text/plain',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'text/markdown',
-    ];
-
-    if (!allowedTypes.includes(file.type) && !file.name.endsWith('.md')) {
-      this.uploadError.set('Invalid file type. Please upload PDF, TXT, DOCX, or MD files.');
+  async onSubmit(): Promise<void> {
+    if (this.uploadForm.invalid) {
+      this.uploadForm.markAllAsTouched();
       return;
     }
+    if (this.isUploading()) return;
 
-    this.uploadForm.patchValue({ file });
-    this.selectedFileName.set(file.name);
-    this.uploadError.set(null);
-    this.uploadSuccess.set(false);
-  }
-
-  async onSubmit() {
-    if (this.uploadForm.invalid || this.isUploading()) {
-      return;
-    }
-
-    const { displayName, file } = this.uploadForm.value;
+    const { displayName, file } = this.uploadForm.getRawValue();
     if (!file) return;
 
     this.isUploading.set(true);
@@ -108,20 +102,73 @@ export class UploadComponent {
         displayName,
       });
 
+      this.conversationService.recordUploadedDocument({
+        displayName,
+        fileName: file.name,
+        mimeType,
+        sizeBytes: file.size,
+      });
+
       this.uploadSuccess.set(true);
       this.uploadForm.reset();
       this.selectedFileName.set(null);
-    } catch (error: any) {
+      this.selectedFileSize.set(null);
+    } catch (error: unknown) {
       console.error('Upload failed', error);
+      const rawMsg = error instanceof Error ? error.message : '';
       let errorMsg = 'An error occurred during upload.';
-      if (error?.message?.includes('UPLOAD_FAILED')) {
+      if (rawMsg.includes('UPLOAD_FAILED')) {
         errorMsg = 'The file upload failed on the server. Please check the file and try again.';
-      } else if (error?.message) {
-        errorMsg = error.message;
+      } else if (rawMsg) {
+        errorMsg = rawMsg;
       }
       this.uploadError.set(errorMsg);
     } finally {
       this.isUploading.set(false);
+    }
+  }
+
+  formatBytes(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  }
+
+  private handleFile(file: File): void {
+    const allowedTypes = [
+      'application/pdf',
+      'text/plain',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/markdown',
+    ];
+
+    const lowerName = file.name.toLowerCase();
+    const validExtension =
+      lowerName.endsWith('.pdf') ||
+      lowerName.endsWith('.txt') ||
+      lowerName.endsWith('.docx') ||
+      lowerName.endsWith('.md');
+
+    if (!allowedTypes.includes(file.type) && !validExtension) {
+      this.uploadError.set('Invalid file type. Please upload PDF, DOCX, TXT, or MD files.');
+      return;
+    }
+
+    this.uploadForm.patchValue({ file });
+    this.selectedFileName.set(file.name);
+    this.selectedFileSize.set(this.formatBytes(file.size));
+    this.uploadError.set(null);
+    this.uploadSuccess.set(false);
+
+    // Pre-fill display name from filename if user hasn't entered one yet
+    if (!this.uploadForm.controls.displayName.value.trim()) {
+      const derived = file.name
+        .replace(/\.[^.]+$/, '')
+        .replace(/[_-]+/g, ' ')
+        .trim();
+      if (derived.length >= 3) {
+        this.uploadForm.controls.displayName.setValue(derived);
+      }
     }
   }
 
@@ -131,11 +178,10 @@ export class UploadComponent {
       reader.readAsDataURL(file);
       reader.onload = () => {
         const result = reader.result as string;
-        // Remove the dataURL prefix (e.g., "data:application/pdf;base64,")
-        const base64 = result.split(',')[1];
+        const base64 = result.split(',')[1] ?? '';
         resolve(base64);
       };
-      reader.onerror = (error) => reject(error);
+      reader.onerror = (err) => reject(err);
     });
   }
 }
