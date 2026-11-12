@@ -5,8 +5,259 @@
 @use 'styles/animations';
 @use 'styles/utilities';
 
-* {
+// Zero-specificity targeted element reset (avoids universal `*` reset pitfalls)
+:where(*, *::before, *::after) {
   box-sizing: border-box;
+}
+
+:where(html, body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, dd, figure, blockquote, pre, fieldset) {
   margin: 0;
   padding: 0;
+}
+
+:root {
+  // Raw Light & Dark Token Pairs (WCAG AA >= 4.5:1 text, >= 3:1 UI boundaries)
+  --bg-canvas-light: #f8fafc;
+  --bg-canvas-dark: #0c0f17;
+
+  --bg-surface-light: #ffffff;
+  --bg-surface-dark: #141824;
+
+  --bg-sidebar-light: #f1f5f9;
+  --bg-sidebar-dark: #0f131d;
+
+  --bg-subtle-light: #eef2f7;
+  --bg-subtle-dark: #1c2232;
+
+  --bg-hover-light: #e2e8f0;
+  --bg-hover-dark: #252d40;
+
+  --bg-active-light: #dfe7f5;
+  --bg-active-dark: #283350;
+
+  --text-primary-light: #0f172a;
+  --text-primary-dark: #f1f5f9;
+
+  --text-secondary-light: #475569;
+  --text-secondary-dark: #94a3b8;
+
+  --text-muted-light: #64748b;
+  --text-muted-dark: #8896ab;
+
+  --brand-primary-light: #1c1454;
+  --brand-primary-dark: #8b80f9;
+
+  --brand-primary-solid-light: #1c1454;
+  --brand-primary-solid-dark: #6355e5;
+
+  --brand-on-solid-light: #ffffff;
+  --brand-on-solid-dark: #ffffff;
+
+  --brand-accent-light: #0d7a72;
+  --brand-accent-dark: #4fd1c5;
+
+  --brand-accent-soft-light: #e6f6f4;
+  --brand-accent-soft-dark: #123332;
+
+  --user-bubble-bg-light: #1c1454;
+  --user-bubble-bg-dark: #2c256b;
+  --user-bubble-text-light: #ffffff;
+  --user-bubble-text-dark: #f8fafc;
+
+  --border-subtle-light: #e2e8f0;
+  --border-subtle-dark: #242c3d;
+
+  --border-strong-light: #758499;
+  --border-strong-dark: #64748b;
+
+  --focus-ring-light: #0d7a72;
+  --focus-ring-dark: #4fd1c5;
+
+  --status-success-bg-light: #ecfdf5;
+  --status-success-bg-dark: #0d2e24;
+  --status-success-text-light: #065f46;
+  --status-success-text-dark: #6ee7b7;
+  --status-success-border-light: #6ee7b7;
+  --status-success-border-dark: #10b981;
+
+  --status-error-bg-light: #fef2f2;
+  --status-error-bg-dark: #331418;
+  --status-error-text-light: #991b1b;
+  --status-error-text-dark: #fca5a5;
+  --status-error-border-light: #fca5a5;
+  --status-error-border-dark: #ef4444;
+
+  --scrollbar-thumb-light: #94a3b8;
+  --scrollbar-thumb-dark: #475569;
+  --scrollbar-track-light: transparent;
+  --scrollbar-track-dark: transparent;
+
+  // Default Fallback Assignments (Light)
+  --color-bg-canvas: var(--bg-canvas-light);
+  --color-bg-surface: var(--bg-surface-light);
+  --color-bg-sidebar: var(--bg-sidebar-light);
+  --color-bg-subtle: var(--bg-subtle-light);
+  --color-bg-hover: var(--bg-hover-light);
+  --color-bg-active: var(--bg-active-light);
+  --color-text-primary: var(--text-primary-light);
+  --color-text-secondary: var(--text-secondary-light);
+  --color-text-muted: var(--text-muted-light);
+  --color-brand: var(--brand-primary-light);
+  --color-brand-solid: var(--brand-primary-solid-light);
+  --color-brand-on-solid: var(--brand-on-solid-light);
+  --color-accent: var(--brand-accent-light);
+  --color-accent-soft: var(--brand-accent-soft-light);
+  --color-user-bubble-bg: var(--user-bubble-bg-light);
+  --color-user-bubble-text: var(--user-bubble-text-light);
+  --color-border-subtle: var(--border-subtle-light);
+  --color-border-strong: var(--border-strong-light);
+  --color-focus-ring: var(--focus-ring-light);
+  --color-success-bg: var(--status-success-bg-light);
+  --color-success-text: var(--status-success-text-light);
+  --color-success-border: var(--status-success-border-light);
+  --color-error-bg: var(--status-error-bg-light);
+  --color-error-text: var(--status-error-text-light);
+  --color-error-border: var(--status-error-border-light);
+  --color-scrollbar-thumb: var(--scrollbar-thumb-light);
+  --color-scrollbar-track: var(--scrollbar-track-light);
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 28px -6px rgba(15, 23, 42, 0.12), 0 4px 10px -3px rgba(15, 23, 42, 0.06);
+
+  // Fallback for browsers without light-dark()
+  @media (prefers-color-scheme: dark) {
+    --color-bg-canvas: var(--bg-canvas-dark);
+    --color-bg-surface: var(--bg-surface-dark);
+    --color-bg-sidebar: var(--bg-sidebar-dark);
+    --color-bg-subtle: var(--bg-subtle-dark);
+    --color-bg-hover: var(--bg-hover-dark);
+    --color-bg-active: var(--bg-active-dark);
+    --color-text-primary: var(--text-primary-dark);
+    --color-text-secondary: var(--text-secondary-dark);
+    --color-text-muted: var(--text-muted-dark);
+    --color-brand: var(--brand-primary-dark);
+    --color-brand-solid: var(--brand-primary-solid-dark);
+    --color-brand-on-solid: var(--brand-on-solid-dark);
+    --color-accent: var(--brand-accent-dark);
+    --color-accent-soft: var(--brand-accent-soft-dark);
+    --color-user-bubble-bg: var(--user-bubble-bg-dark);
+    --color-user-bubble-text: var(--user-bubble-text-dark);
+    --color-border-subtle: var(--border-subtle-dark);
+    --color-border-strong: var(--border-strong-dark);
+    --color-focus-ring: var(--focus-ring-dark);
+    --color-success-bg: var(--status-success-bg-dark);
+    --color-success-text: var(--status-success-text-dark);
+    --color-success-border: var(--status-success-border-dark);
+    --color-error-bg: var(--status-error-bg-dark);
+    --color-error-text: var(--status-error-text-dark);
+    --color-error-border: var(--status-error-border-dark);
+    --color-scrollbar-thumb: var(--scrollbar-thumb-dark);
+    --color-scrollbar-track: var(--scrollbar-track-dark);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 6px 16px -2px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 14px 32px -6px rgba(0, 0, 0, 0.6);
+  }
+
+  // Modern CSS light-dark() automatic resolution from computed color-scheme
+  @supports (color: light-dark(white, black)) {
+    --color-bg-canvas: light-dark(var(--bg-canvas-light), var(--bg-canvas-dark));
+    --color-bg-surface: light-dark(var(--bg-surface-light), var(--bg-surface-dark));
+    --color-bg-sidebar: light-dark(var(--bg-sidebar-light), var(--bg-sidebar-dark));
+    --color-bg-subtle: light-dark(var(--bg-subtle-light), var(--bg-subtle-dark));
+    --color-bg-hover: light-dark(var(--bg-hover-light), var(--bg-hover-dark));
+    --color-bg-active: light-dark(var(--bg-active-light), var(--bg-active-dark));
+    --color-text-primary: light-dark(var(--text-primary-light), var(--text-primary-dark));
+    --color-text-secondary: light-dark(var(--text-secondary-light), var(--text-secondary-dark));
+    --color-text-muted: light-dark(var(--text-muted-light), var(--text-muted-dark));
+    --color-brand: light-dark(var(--brand-primary-light), var(--brand-primary-dark));
+    --color-brand-solid: light-dark(var(--brand-primary-solid-light), var(--brand-primary-solid-dark));
+    --color-brand-on-solid: light-dark(var(--brand-on-solid-light), var(--brand-on-solid-dark));
+    --color-accent: light-dark(var(--brand-accent-light), var(--brand-accent-dark));
+    --color-accent-soft: light-dark(var(--brand-accent-soft-light), var(--brand-accent-soft-dark));
+    --color-user-bubble-bg: light-dark(var(--user-bubble-bg-light), var(--user-bubble-bg-dark));
+    --color-user-bubble-text: light-dark(var(--user-bubble-text-light), var(--user-bubble-text-dark));
+    --color-border-subtle: light-dark(var(--border-subtle-light), var(--border-subtle-dark));
+    --color-border-strong: light-dark(var(--border-strong-light), var(--border-strong-dark));
+    --color-focus-ring: light-dark(var(--focus-ring-light), var(--focus-ring-dark));
+    --color-success-bg: light-dark(var(--status-success-bg-light), var(--status-success-bg-dark));
+    --color-success-text: light-dark(var(--status-success-text-light), var(--status-success-text-dark));
+    --color-success-border: light-dark(var(--status-success-border-light), var(--status-success-border-dark));
+    --color-error-bg: light-dark(var(--status-error-bg-light), var(--status-error-bg-dark));
+    --color-error-text: light-dark(var(--status-error-text-light), var(--status-error-text-dark));
+    --color-error-border: light-dark(var(--status-error-border-light), var(--status-error-border-dark));
+    --color-scrollbar-thumb: light-dark(var(--scrollbar-thumb-light), var(--scrollbar-thumb-dark));
+    --color-scrollbar-track: light-dark(var(--scrollbar-track-light), var(--scrollbar-track-dark));
+  }
+
+  // Native viewport-wide light/dark support mapped from <meta name="color-scheme">
+  color-scheme: light dark;
+
+  &:has(> head > meta[name='color-scheme'][content='dark']) {
+    color-scheme: dark;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 6px 16px -2px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 14px 32px -6px rgba(0, 0, 0, 0.6);
+  }
+
+  &:has(> head > meta[name='color-scheme'][content='light']) {
+    color-scheme: light;
+    --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+    --shadow-lg: 0 12px 28px -6px rgba(15, 23, 42, 0.12), 0 4px 10px -3px rgba(15, 23, 42, 0.06);
+  }
+
+  accent-color: var(--color-accent);
+  scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
+  scrollbar-width: thin;
+
+  @media (forced-colors: active) {
+    --color-border-subtle: CanvasText;
+    --color-border-strong: CanvasText;
+    --color-focus-ring: Highlight;
+  }
+}
+
+html,
+body {
+  block-size: 100%;
+}
+
+::selection {
+  background-color: var(--color-accent-soft);
+  color: var(--color-text-primary);
+}
+
+// High-contrast accessible focus ring
+:where(a:any-link, button, input, textarea, select, summary, [tabindex]:not([tabindex='-1'])):focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+// Native modal dialog scroll containment & backdrop rules
+dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background-color: rgba(10, 14, 24, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+// Legacy WebKit scrollbar fallback only when standard scrollbar-color is unsupported
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-scrollbar-thumb);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-scrollbar-track);
+  }
 }
