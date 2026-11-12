@@ -1,0 +1,86 @@
+<div class="composer-wrapper">
+  <form #composerForm class="composer-shell" (submit)="onSubmit($event)">
+    <label for="chat-prompt-textarea" class="visually-hidden">
+      Ask a question about company policies or onboarding documents
+    </label>
+
+    <textarea
+      #promptTextarea
+      id="chat-prompt-textarea"
+      class="composer-textarea"
+      [formControl]="promptControl"
+      (compositionend)="onCompositionEnd($event)"
+      (keydown)="onKeyDown($event)"
+      placeholder="Ask about company policies, IT setup, benefits, or follow up…"
+      aria-describedby="composer-guidance"
+      rows="1"
+    ></textarea>
+
+    <div class="composer-toolbar">
+      <div class="toolbar-start">
+        <a routerLink="/upload" class="composer-chip" aria-label="Upload knowledge source document">
+          <svg
+            aria-hidden="true"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"
+            />
+          </svg>
+          <span>Add document</span>
+        </a>
+
+        @if (turnCount() > 0) {
+          <span class="context-pill">
+            Context: {{ turnCount() }} {{ turnCount() === 1 ? 'turn' : 'turns' }}
+          </span>
+        }
+
+        @if (turnCount() >= 2) {
+          <button
+            type="button"
+            class="composer-chip reset-chip"
+            (click)="newTopic.emit()"
+            [disabled]="disabled()"
+          >
+            New topic
+          </button>
+        }
+      </div>
+
+      <div class="toolbar-end">
+        <span class="shortcut-hint" aria-hidden="true">Enter ↵</span>
+        <button
+          type="submit"
+          class="send-btn"
+          [disabled]="disabled() || !hasText()"
+          aria-label="Send message"
+        >
+          <svg
+            aria-hidden="true"
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="12" y1="19" x2="12" y2="5" />
+            <polyline points="5 12 12 5 19 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <p id="composer-guidance" class="composer-caption">
+    Press <kbd>Enter</kbd> to send, <kbd>Shift</kbd> + <kbd>Enter</kbd> for a new line.
+  </p>
+</div>
