@@ -1,0 +1,92 @@
+<div class="inspector-header">
+  <h2 class="inspector-title">Knowledge Context</h2>
+  <button
+    type="button"
+    class="icon-btn"
+    (click)="closePanel.emit()"
+    aria-label="Close sources panel"
+  >
+    <svg
+      aria-hidden="true"
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  </button>
+</div>
+
+<div class="inspector-body">
+  <div class="inspector-section">
+    <h3 class="eyebrow-heading">Cited in This Thread</h3>
+    @if (conversationService.activeCitations().length === 0) {
+      <p class="muted-copy">
+        No source documents have been cited in this conversation yet. Ask a policy or onboarding
+        question to view cited documents here.
+      </p>
+    } @else {
+      <ul class="plain-stack-list" role="list">
+        @for (cite of conversationService.activeCitations(); track cite) {
+          <li>
+            <button
+              type="button"
+              class="inspector-doc-btn"
+              [class.selected]="selectedCitation() === cite"
+              (click)="toggleCitation.emit(cite)"
+            >
+              <svg
+                aria-hidden="true"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              <span class="truncate-text">{{ cite }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+  @if (selectedCitation() && citationMentions().length > 0) {
+    <div class="inspector-section">
+      <h3 class="eyebrow-heading">Referenced Responses ({{ selectedCitation() }})</h3>
+      <ul class="plain-stack-list" role="list">
+        @for (turn of citationMentions(); track turn.id) {
+          <li class="excerpt-card">
+            <p>{{ turn.content }}</p>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  <div class="inspector-section">
+    <h3 class="eyebrow-heading">Recently Uploaded</h3>
+    @if (conversationService.uploadedDocuments().length === 0) {
+      <p class="muted-copy">No documents uploaded from this browser session yet.</p>
+    } @else {
+      <ul class="plain-stack-list" role="list">
+        @for (doc of conversationService.uploadedDocuments(); track doc.id) {
+          <li class="subtle-row-card">
+            <span class="row-title truncate-text">{{ doc.displayName }}</span>
+            <span class="row-meta">{{ doc.fileName }}</span>
+          </li>
+        }
+      </ul>
+    }
+
+    <a routerLink="/upload" class="btn btn--outline btn--sm w-100">+ Upload Knowledge Document</a>
+  </div>
+</div>

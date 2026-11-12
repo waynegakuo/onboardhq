@@ -1,4 +1,165 @@
-<app-navbar />
-<main>
-  <router-outlet />
-</main>
+<a href="#main-workspace" class="skip-link visually-hidden">Skip to main content</a>
+
+<div class="app-workspace">
+  <aside
+    class="desktop-sidebar"
+    [class.collapsed]="isSidebarCollapsed()"
+    [inert]="isSidebarCollapsed()"
+    aria-label="Conversation history and navigation"
+  >
+    <app-sidebar
+      idPrefix="desktop"
+      [showCollapseButton]="true"
+      (collapseSidebar)="toggleDesktopSidebar()"
+    />
+  </aside>
+
+  @if (isSidebarCollapsed()) {
+    <div class="collapsed-rail">
+      <button
+        type="button"
+        class="icon-btn"
+        (click)="toggleDesktopSidebar()"
+        aria-label="Expand sidebar"
+      >
+        <svg
+          aria-hidden="true"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <line x1="9" y1="3" x2="9" y2="21" />
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="icon-btn"
+        (click)="startNewChatMobile()"
+        aria-label="Start new conversation"
+      >
+        <svg
+          aria-hidden="true"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      </button>
+    </div>
+  }
+
+  <div class="workspace-column">
+    <header class="mobile-topbar">
+      <button
+        type="button"
+        class="icon-btn"
+        (click)="openMobileDrawer()"
+        aria-label="Open workspace menu"
+      >
+        <svg
+          aria-hidden="true"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a routerLink="/" class="mobile-brand" aria-label="Onboard HQ Home">
+        <span class="mobile-logo-plate">
+          <img
+            ngSrc="assets/logos/onboard-hq-logo.svg"
+            alt="Onboard HQ"
+            width="112"
+            height="24"
+            priority
+          />
+        </span>
+      </a>
+
+      <button
+        type="button"
+        class="icon-btn"
+        (click)="startNewChatMobile()"
+        aria-label="New conversation"
+      >
+        <svg
+          aria-hidden="true"
+          width="19"
+          height="19"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.1"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+        </svg>
+      </button>
+    </header>
+
+    <main id="main-workspace" class="workspace-main" tabindex="-1">
+      <router-outlet />
+    </main>
+  </div>
+</div>
+
+<dialog #mobileDrawer class="mobile-drawer-dialog" [attr.closedby]="'any'" aria-label="Workspace navigation">
+  <div class="drawer-header">
+    <span class="drawer-label">Workspace</span>
+    <button
+      type="button"
+      class="icon-btn"
+      (click)="closeMobileDrawer()"
+      aria-label="Close workspace menu"
+    >
+      <svg
+        aria-hidden="true"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </button>
+  </div>
+  <div class="drawer-body">
+    <app-sidebar
+      idPrefix="mobile"
+      [showCollapseButton]="false"
+      (navigateDone)="closeMobileDrawer()"
+    />
+  </div>
+</dialog>
+
+<div class="visually-hidden" aria-live="polite" aria-atomic="true">
+  {{ conversationService.liveAnnouncement() }}
+</div>

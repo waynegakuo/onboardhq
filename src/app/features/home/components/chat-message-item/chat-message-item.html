@@ -1,0 +1,262 @@
+@if (message().role === 'user') {
+  <article class="turn turn--user slide-up" aria-label="Your message">
+    @if (isEditing()) {
+      <form class="edit-turn-form" (submit)="submitEdit($event)">
+        <label [for]="'edit-msg-' + message().id" class="visually-hidden">Edit your question</label>
+        <textarea
+          [id]="'edit-msg-' + message().id"
+          class="edit-textarea"
+          [formControl]="editControl"
+          (compositionend)="onCompositionEnd($event)"
+          (keydown)="onEditKeydown($event)"
+        ></textarea>
+        <div class="edit-actions">
+          <button type="button" class="btn btn--ghost btn--sm" (click)="cancelEdit()">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="btn btn--primary btn--sm"
+            [disabled]="!editControl.value.trim() || isGenerating()"
+          >
+            Save &amp; Submit
+          </button>
+        </div>
+      </form>
+    } @else {
+      <div class="user-bubble">
+        <p class="user-text">{{ message().content }}</p>
+      </div>
+      <div class="turn-meta turn-meta--user">
+        <span class="turn-time">{{ message().timestamp | date: 'shortTime' }}</span>
+        <button
+          type="button"
+          class="icon-btn meta-btn"
+          (click)="startEdit()"
+          [disabled]="isGenerating()"
+          aria-label="Edit and resubmit question"
+        >
+          <svg
+            aria-hidden="true"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="icon-btn meta-btn"
+          (click)="copyContent()"
+          [attr.aria-label]="isCopied() ? 'Copied question' : 'Copy question'"
+        >
+          @if (isCopied()) {
+            <svg
+              aria-hidden="true"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.3"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          } @else {
+            <svg
+              aria-hidden="true"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          }
+        </button>
+      </div>
+    }
+  </article>
+} @else {
+  <article
+    class="turn turn--ai slide-up"
+    [class.turn--error]="message().isError"
+    aria-label="Onboard HQ response"
+  >
+    <div class="brand-avatar turn-avatar" aria-hidden="true">
+      <img ngSrc="assets/logos/onboard-hq-icon.svg" alt="" width="22" height="22" />
+    </div>
+
+    <div class="ai-body">
+      <div class="ai-header">
+        <span class="ai-author">Onboard HQ</span>
+        <span class="turn-time">{{ message().timestamp | date: 'shortTime' }}</span>
+      </div>
+
+      <div class="ai-card">
+        @if (message().renderedHtml) {
+          <div class="markdown-prose" [innerHTML]="message().renderedHtml"></div>
+        } @else {
+          <p class="plain-content">{{ message().content }}</p>
+        }
+
+        @if (message().citations && message().citations!.length > 0) {
+          <div class="sources-footer">
+            <span class="sources-label">Sources</span>
+            <ul class="sources-list" role="list">
+              @for (cite of message().citations!; track cite) {
+                <li>
+                  <button
+                    type="button"
+                    class="source-chip"
+                    (click)="onCitationClick(cite)"
+                    [attr.aria-label]="'Inspect cited source ' + cite"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                    </svg>
+                    <span>{{ cite }}</span>
+                  </button>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (message().hasUploadHint) {
+          <div class="upload-cta-box">
+            <span>Add company documents to include them in future answers.</span>
+            <a routerLink="/upload" class="btn btn--secondary btn--sm">Add documents →</a>
+          </div>
+        }
+      </div>
+
+      <div class="turn-meta turn-meta--ai">
+        <button
+          type="button"
+          class="icon-btn meta-btn"
+          (click)="copyContent()"
+          [attr.aria-label]="isCopied() ? 'Copied response' : 'Copy response'"
+        >
+          @if (isCopied()) {
+            <svg
+              aria-hidden="true"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.3"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            <span class="meta-btn-text">Copied</span>
+          } @else {
+            <svg
+              aria-hidden="true"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+            <span class="meta-btn-text">Copy</span>
+          }
+        </button>
+
+        <button
+          type="button"
+          class="icon-btn meta-btn"
+          [class.icon-btn--active]="message().feedback === 'helpful'"
+          [attr.aria-pressed]="message().feedback === 'helpful'"
+          (click)="onFeedback('helpful')"
+          aria-label="Mark answer as helpful"
+        >
+          <svg
+            aria-hidden="true"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M7 10v12" />
+            <path
+              d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"
+            />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          class="icon-btn meta-btn"
+          [class.icon-btn--active]="message().feedback === 'not-helpful'"
+          [attr.aria-pressed]="message().feedback === 'not-helpful'"
+          (click)="onFeedback('not-helpful')"
+          aria-label="Mark answer as not helpful"
+        >
+          <svg
+            aria-hidden="true"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M17 14V2" />
+            <path
+              d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z"
+            />
+          </svg>
+        </button>
+
+        @if (isLastAiMessage()) {
+          <button
+            type="button"
+            class="icon-btn meta-btn"
+            [disabled]="isGenerating()"
+            (click)="regenerate.emit()"
+            aria-label="Regenerate response"
+          >
+            <svg
+              aria-hidden="true"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
+            </svg>
+            <span class="meta-btn-text">Regenerate</span>
+          </button>
+        }
+      </div>
+    </div>
+  </article>
+}

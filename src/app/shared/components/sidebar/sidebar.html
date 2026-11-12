@@ -1,0 +1,437 @@
+<div class="sidebar-shell">
+  <div class="sidebar-top">
+    <div class="brand-row">
+      <a routerLink="/" class="brand-link" (click)="onNavLinkClick()" aria-label="Onboard HQ Home">
+        <span class="logo-plate">
+          <img
+            ngSrc="assets/logos/onboard-hq-logo.svg"
+            alt="Onboard HQ"
+            width="132"
+            height="28"
+            priority
+          />
+        </span>
+      </a>
+
+      @if (showCollapseButton()) {
+        <button
+          type="button"
+          class="icon-btn"
+          (click)="collapseSidebar.emit()"
+          aria-label="Collapse sidebar"
+        >
+          <svg
+            aria-hidden="true"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <line x1="9" y1="3" x2="9" y2="21" />
+          </svg>
+        </button>
+      }
+    </div>
+
+    <button type="button" class="btn btn--primary new-chat-btn" (click)="onNewChat()">
+      <svg
+        aria-hidden="true"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      <span>New conversation</span>
+    </button>
+
+    <search class="thread-search">
+      <label [for]="searchInputId()" class="visually-hidden">Search conversations</label>
+      <svg
+        class="search-icon"
+        aria-hidden="true"
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <input
+        [id]="searchInputId()"
+        type="search"
+        [formControl]="searchControl"
+        placeholder="Search conversations…"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+      />
+      @if (searchControl.value) {
+        <button
+          type="button"
+          class="clear-search-btn"
+          (click)="clearSearch()"
+          aria-label="Clear search"
+        >
+          ×
+        </button>
+      }
+    </search>
+  </div>
+
+  <div class="threads-scroll">
+    @if (pinnedConversations().length > 0) {
+      <div class="thread-group">
+        <h2 class="eyebrow-heading group-pad">Pinned</h2>
+        <ul class="thread-list" role="list">
+          @for (conv of pinnedConversations(); track conv.id) {
+            <li
+              class="thread-item"
+              [class.active]="conv.id === conversationService.activeConversationId()"
+            >
+              @if (editingId() === conv.id) {
+                <div class="rename-row">
+                  <label [for]="'rename-' + conv.id" class="visually-hidden">
+                    Rename conversation
+                  </label>
+                  <input
+                    [id]="'rename-' + conv.id"
+                    type="text"
+                    class="rename-input"
+                    [formControl]="renameControl"
+                    (compositionend)="onCompositionEnd($event)"
+                    (keydown)="onRenameKeydown($event, conv.id)"
+                    (blur)="onSaveRename(conv.id)"
+                  />
+                </div>
+              } @else {
+                <button
+                  type="button"
+                  class="thread-select-btn"
+                  (click)="onSelectConversation(conv)"
+                  [attr.aria-current]="
+                    conv.id === conversationService.activeConversationId() ? 'true' : null
+                  "
+                >
+                  <span class="thread-title">{{ conv.title }}</span>
+                  @if (conv.messages.length > 0) {
+                    <span class="turn-pill">{{ conv.messages.length }}</span>
+                  }
+                </button>
+                <div class="thread-actions">
+                  <button
+                    type="button"
+                    class="icon-btn action-mini"
+                    (click)="onTogglePin($event, conv)"
+                    [attr.aria-label]="'Unpin ' + conv.title"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M12 17v5" />
+                      <path
+                        d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="icon-btn action-mini"
+                    (click)="onStartRename($event, conv)"
+                    [attr.aria-label]="'Rename ' + conv.title"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="icon-btn action-mini danger"
+                    (click)="onRequestDelete($event, conv)"
+                    [attr.aria-label]="'Delete ' + conv.title"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                    </svg>
+                  </button>
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <div class="thread-group">
+      <h2 class="eyebrow-heading group-pad">Conversations</h2>
+      @if (recentConversations().length === 0 && pinnedConversations().length === 0) {
+        <p class="muted-copy group-pad">No matching conversations found.</p>
+      } @else {
+        <ul class="thread-list" role="list">
+          @for (conv of recentConversations(); track conv.id) {
+            <li
+              class="thread-item"
+              [class.active]="conv.id === conversationService.activeConversationId()"
+            >
+              @if (editingId() === conv.id) {
+                <div class="rename-row">
+                  <label [for]="'rename-' + conv.id" class="visually-hidden">
+                    Rename conversation
+                  </label>
+                  <input
+                    [id]="'rename-' + conv.id"
+                    type="text"
+                    class="rename-input"
+                    [formControl]="renameControl"
+                    (compositionend)="onCompositionEnd($event)"
+                    (keydown)="onRenameKeydown($event, conv.id)"
+                    (blur)="onSaveRename(conv.id)"
+                  />
+                </div>
+              } @else {
+                <button
+                  type="button"
+                  class="thread-select-btn"
+                  (click)="onSelectConversation(conv)"
+                  [attr.aria-current]="
+                    conv.id === conversationService.activeConversationId() ? 'true' : null
+                  "
+                >
+                  <span class="thread-title">{{ conv.title }}</span>
+                  @if (conv.messages.length > 0) {
+                    <span class="turn-pill">{{ conv.messages.length }}</span>
+                  }
+                </button>
+                <div class="thread-actions">
+                  <button
+                    type="button"
+                    class="icon-btn action-mini"
+                    (click)="onTogglePin($event, conv)"
+                    [attr.aria-label]="'Pin ' + conv.title"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M12 17v5" />
+                      <path
+                        d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="icon-btn action-mini"
+                    (click)="onStartRename($event, conv)"
+                    [attr.aria-label]="'Rename ' + conv.title"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="icon-btn action-mini danger"
+                    (click)="onRequestDelete($event, conv)"
+                    [attr.aria-label]="'Delete ' + conv.title"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                    </svg>
+                  </button>
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <nav class="workspace-nav" aria-label="Workspace">
+      <a
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="workspace-link"
+        (click)="onNavLinkClick()"
+      >
+        <svg
+          aria-hidden="true"
+          width="17"
+          height="17"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+        <span>Ask Knowledge Base</span>
+      </a>
+
+      <a
+        routerLink="/upload"
+        routerLinkActive="active"
+        class="workspace-link"
+        (click)="onNavLinkClick()"
+      >
+        <svg
+          aria-hidden="true"
+          width="17"
+          height="17"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="12" y1="18" x2="12" y2="12" />
+          <line x1="9" y1="15" x2="15" y2="15" />
+        </svg>
+        <span>Knowledge Sources</span>
+        @if (conversationService.uploadedDocuments().length > 0) {
+          <span class="doc-count">{{ conversationService.uploadedDocuments().length }}</span>
+        }
+      </a>
+    </nav>
+
+    <div class="footer-meta">
+      <button
+        type="button"
+        class="workspace-link theme-row-btn"
+        (click)="themeService.toggleScheme()"
+      >
+        @if (themeService.isDark()) {
+          <svg
+            aria-hidden="true"
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2" />
+            <path d="M12 20v2" />
+            <path d="m4.93 4.93 1.41 1.41" />
+            <path d="m17.66 17.66 1.41 1.41" />
+            <path d="M2 12h2" />
+            <path d="M20 12h2" />
+            <path d="m6.34 17.66-1.41 1.41" />
+            <path d="m19.07 4.93-1.41 1.41" />
+          </svg>
+          <span>Switch to light theme</span>
+        } @else {
+          <svg
+            aria-hidden="true"
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+          </svg>
+          <span>Switch to dark theme</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>
+
+<dialog
+  #deleteDialog
+  class="modal-dialog delete-confirm-dialog"
+  [attr.closedby]="'any'"
+  [attr.aria-labelledby]="deleteDialogTitleId()"
+  (close)="onDeleteDialogClose()"
+>
+  <h2 [id]="deleteDialogTitleId()" class="dialog-title">Delete conversation?</h2>
+  <p class="dialog-desc">
+    This will permanently remove
+    <strong>{{ pendingDeleteConversation()?.title ?? 'this conversation' }}</strong>
+    and its multi-turn history from this device.
+  </p>
+  <form method="dialog" class="dialog-actions">
+    <button type="submit" value="cancel" class="btn btn--outline" autofocus>Cancel</button>
+    <button type="submit" value="delete" class="btn btn--danger">Delete</button>
+  </form>
+</dialog>

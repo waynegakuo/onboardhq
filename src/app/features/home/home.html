@@ -1,59 +1,125 @@
-<div class="chat-container">
-  <header class="chat-header">
-    <div class="header-content">
-      <h1 class="onboard-hq-title">Onboard HQ</h1>
-      <p class="description">Your intelligent assistant for seamless onboarding and query resolution for your new hires.</p>
-    </div>
-  </header>
+<div class="chat-workspace">
+  <div class="chat-primary">
+    <header class="conversation-header">
+      <div class="header-title-group">
+        <h1 class="conversation-title truncate-text">
+          {{ conversationService.activeConversation().title }}
+        </h1>
+        @if (conversationService.activeTurnCount() > 0) {
+          <span class="badge">
+            {{ conversationService.activeTurnCount() }}
+            {{ conversationService.activeTurnCount() === 1 ? 'turn' : 'turns' }}
+          </span>
+        }
+      </div>
 
-  <main class="messages-area" #scrollContainer>
-    @for (message of messages(); track message.id) {
-      <div
-        class="message-wrapper"
-        [class.user]="message.role === 'user'"
-        [class.ai]="message.role === 'ai'"
-        [class.message-in-right]="message.role === 'user'"
-        [class.message-in-left]="message.role === 'ai'"
-      >
-        <div class="message-bubble">
-          @if (message.formattedText) {
-            <div [innerHTML]="message.formattedText"></div>
-          } @else {
-            <p class="message-content">{{ message.content }}</p>
+      <div class="header-actions">
+        <button
+          type="button"
+          class="btn btn--ghost btn--sm"
+          [class.active-toggle]="isInspectorOpen()"
+          [attr.aria-expanded]="isInspectorOpen()"
+          aria-controls="sources-inspector-panel"
+          (click)="toggleInspector()"
+        >
+          <svg
+            aria-hidden="true"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+          </svg>
+          <span>Sources</span>
+          @if (conversationService.activeCitations().length > 0) {
+            <span class="cite-count">{{ conversationService.activeCitations().length }}</span>
           }
-          <span class="timestamp">{{ message.timestamp | date: 'shortTime' }}</span>
-        </div>
-      </div>
-    }
+        </button>
 
-    @if (isTyping()) {
-      <div class="message-wrapper ai message-in-left">
-        <div class="message-bubble typing">
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
+        <button
+          type="button"
+          class="btn btn--outline btn--sm"
+          (click)="onNewTopic()"
+          [disabled]="conversationService.activeMessages().length === 0"
+        >
+          New chat
+        </button>
       </div>
-    }
-  </main>
+    </header>
 
-  <footer class="input-area">
-    <div class="input-container">
-      <textarea
-        placeholder="Type your query here..."
-        [(ngModel)]="userInput"
-        (keydown)="onKeyDown($event)"
-        rows="1"
-        aria-label="Chat input"
-      ></textarea>
-      <button
-        class="btn-primary"
-        [disabled]="!userInput().trim() || isTyping()"
-        (click)="sendMessage()"
-        aria-label="Send message"
-      >
-        <span class="icon">Send</span>
-      </button>
+    <div class="stream-region">
+      <div class="messages-stream" #scrollContainer (scroll)="onStreamScroll()">
+        @if (conversationService.activeMessages().length === 0) {
+          <app-chat-welcome (selectPrompt)="onStarterPrompt($event)" />
+        } @else {
+          <div class="turns-stack">
+            @for (message of conversationService.activeMessages(); track message.id) {
+              <app-chat-message-item
+                [message]="message"
+                [isLastAiMessage]="message.id === lastAiMessageId()"
+                [isGenerating]="conversationService.isGenerating()"
+                (regenerate)="onRegenerate()"
+                (editMessage)="onEditMessage($event)"
+                (rateFeedback)="onFeedback($event)"
+                (inspectCitation)="onInspectCitation($event)"
+              />
+            }
+
+            @if (conversationService.isGenerating()) {
+              <div class="retrieval-indicator slide-up">
+                <div class="brand-avatar" aria-hidden="true">
+                  <img ngSrc="assets/logos/onboard-hq-icon.svg" alt="" width="22" height="22" />
+                </div>
+                <div class="retrieval-card">
+                  <span class="retrieval-text">Searching company documents…</span>
+                  <progress class="retrieval-progress" aria-label="Retrieving answer"></progress>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      @if (showScrollToBottom()) {
+        <button
+          type="button"
+          class="scroll-bottom-btn fade-in"
+          (click)="scrollToBottom()"
+          aria-label="Scroll to latest message"
+        >
+          <svg
+            aria-hidden="true"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+          >
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <polyline points="19 12 12 19 5 12" />
+          </svg>
+          <span>Latest</span>
+        </button>
+      }
     </div>
-  </footer>
+
+    <app-chat-composer
+      [disabled]="conversationService.isGenerating()"
+      [turnCount]="conversationService.activeTurnCount()"
+      (sendPrompt)="onSendPrompt($event)"
+      (newTopic)="onNewTopic()"
+    />
+  </div>
+
+  @if (isInspectorOpen()) {
+    <app-sources-inspector
+      [selectedCitation]="selectedCitation()"
+      (closePanel)="closeInspector()"
+      (toggleCitation)="selectCitationInPanel($event)"
+    />
+  }
 </div>

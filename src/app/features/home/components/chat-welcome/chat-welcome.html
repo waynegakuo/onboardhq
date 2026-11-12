@@ -1,0 +1,52 @@
+<section class="welcome-stage fade-in" aria-labelledby="welcome-heading">
+  <div class="welcome-hero">
+    <h2 id="welcome-heading" class="welcome-title">How can Onboard HQ help you today?</h2>
+    <p class="welcome-subtitle">
+      Find answers across company handbooks, IT setup guides, and HR policies, with links to source
+      documents.
+    </p>
+  </div>
+
+  <div class="prompt-grid" role="list" aria-label="Suggested starter questions">
+    @for (item of starterPrompts; track item.id) {
+      <div role="listitem" class="prompt-grid-cell">
+        <button type="button" class="starter-card" (click)="onChoosePrompt(item.prompt)">
+          <span class="starter-category">{{ item.category }}</span>
+          <span class="starter-title">{{ item.title }}</span>
+          <span class="starter-preview">{{ item.prompt }}</span>
+        </button>
+      </div>
+    }
+  </div>
+
+  <div class="knowledge-callout">
+    <div class="callout-copy">
+      <svg
+        aria-hidden="true"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+      </svg>
+      @if (conversationService.uploadedDocuments().length > 0) {
+        <span>
+          <strong>{{ conversationService.uploadedDocuments().length }}</strong>
+          {{
+            conversationService.uploadedDocuments().length === 1
+              ? 'document uploaded'
+              : 'documents uploaded'
+          }}
+          in this workspace.
+        </span>
+      } @else {
+        <span>Keep answers current by indexing handbooks, policies, and guides.</span>
+      }
+    </div>
+    <a routerLink="/upload" class="callout-link">Manage Knowledge Sources →</a>
+  </div>
+</section>
