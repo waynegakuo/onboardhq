@@ -2,38 +2,178 @@
 
 body {
   font-family: $font-body;
-  color: $color-text;
-  background-color: $color-background;
-  line-height: 1.5;
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-canvas);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  margin-top: 0;
-  margin-bottom: $spacing-md;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: $font-heading;
   font-weight: 700;
-  color: $color-primary;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--color-text-primary);
 }
 
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.75rem; }
-h4 { font-size: 1.5rem; }
-h5 { font-size: 1.25rem; }
-h6 { font-size: 1rem; }
+h1 {
+  font-size: clamp(1.375rem, 1.15rem + 1vw, 1.875rem);
+}
 
-p {
-  margin-top: 0;
-  margin-bottom: $spacing-md;
+h2 {
+  font-size: clamp(1.15rem, 1rem + 0.6vw, 1.375rem);
+}
+
+h3 {
+  font-size: 1.0625rem;
+}
+
+h4 {
+  font-size: 0.95rem;
 }
 
 a {
-  color: $color-secondary;
-  text-decoration: none;
-  transition: $transition-base;
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  transition: color $transition-fast;
 
   &:hover {
-    opacity: 0.8;
+    color: var(--color-brand);
+  }
+}
+
+code,
+pre {
+  font-family: $font-mono;
+}
+
+// Shared rich prose styling for AI knowledge-base responses
+.markdown-prose {
+  font-size: 0.9375rem;
+  line-height: 1.68;
+  color: var(--color-text-primary);
+  overflow-wrap: anywhere;
+
+  > :first-child {
+    margin-block-start: 0;
+  }
+
+  > :last-child {
+    margin-block-end: 0;
+  }
+
+  p {
+    margin-block: 0 0.75rem;
+  }
+
+  h3,
+  h4 {
+    margin-block: 1.1rem 0.45rem;
+    font-weight: 600;
+  }
+
+  ul,
+  ol {
+    margin-block: 0.5rem 0.85rem;
+    padding-inline-start: 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  li {
+    line-height: 1.6;
+  }
+
+  strong {
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  code:not(pre code) {
+    font-size: 0.85em;
+    padding: 0.15em 0.42em;
+    border-radius: $border-radius-sm;
+    background-color: var(--color-bg-subtle);
+    border: 1px solid var(--color-border-subtle);
+    color: var(--color-text-primary);
+  }
+
+  pre {
+    margin-block: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-radius: $border-radius-md;
+    background-color: var(--color-bg-sidebar);
+    border: 1px solid var(--color-border-subtle);
+    overflow-x: auto;
+    font-size: 0.84rem;
+    line-height: 1.55;
+  }
+
+  blockquote {
+    margin-block: 0.75rem;
+    padding: 0.5rem 0.9rem;
+    border-inline-start: 3px solid var(--color-accent);
+    background-color: var(--color-bg-subtle);
+    border-radius: 0 $border-radius-sm $border-radius-sm 0;
+    color: var(--color-text-secondary);
+  }
+
+  hr {
+    border: 0;
+    border-block-start: 1px solid var(--color-border-subtle);
+    margin-block: 1rem;
+  }
+
+  .prose-table-wrap {
+    overflow-x: auto;
+    margin-block: 0.75rem;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: $border-radius-md;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+
+    th,
+    td {
+      padding: 0.55rem 0.75rem;
+      text-align: start;
+      border-block-end: 1px solid var(--color-border-subtle);
+    }
+
+    th {
+      font-weight: 600;
+      background-color: var(--color-bg-subtle);
+    }
+
+    tbody tr:last-child td {
+      border-block-end: none;
+    }
+  }
+
+  .citation-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 0.1rem 0.5rem;
+    margin-inline: 0.15rem;
+    border-radius: $border-radius-full;
+    background-color: var(--color-accent-soft);
+    color: var(--color-accent);
+    border: 1px solid color-mix(in oklab, var(--color-accent) 30%, transparent);
+    vertical-align: baseline;
   }
 }
