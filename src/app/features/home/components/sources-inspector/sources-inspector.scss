@@ -1,0 +1,84 @@
+@use '../../../../../styles/variables' as *;
+
+:host {
+  width: $inspector-width;
+  flex-shrink: 0;
+  background-color: var(--color-bg-surface);
+  border-inline-start: 1px solid var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  @media (max-width: 1024px) {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-end: 0;
+    z-index: 40;
+    width: min(90vw, 20rem);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+.inspector-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-block-size: 3.35rem;
+  padding: 0.5rem 1rem;
+  border-block-end: 1px solid var(--color-border-subtle);
+
+  .inspector-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+}
+
+.inspector-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+.inspector-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.inspector-doc-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: $border-radius-md;
+  background-color: var(--color-bg-subtle);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-align: start;
+  cursor: pointer;
+
+  &.selected {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-soft);
+    color: var(--color-accent);
+  }
+}
+
+.excerpt-card {
+  padding: 0.65rem 0.75rem;
+  border-radius: $border-radius-md;
+  background-color: var(--color-bg-subtle);
+  border-inline-start: 3px solid var(--color-accent);
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  max-block-size: 9rem;
+  overflow-y: auto;
+}
